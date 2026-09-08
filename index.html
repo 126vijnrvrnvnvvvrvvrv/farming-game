@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farming Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-align: center;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .stat-box h3 {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+
+        .stat-box .value {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .farm {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .plot {
+            aspect-ratio: 1;
+            background: #8B7355;
+            border: 3px solid #654321;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plot:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .plot.empty {
+            background: linear-gradient(135deg, #A0826D 0%, #8B7355 100%);
+        }
+
+        .plot.planted {
+            background: linear-gradient(135deg, #90EE90 0%, #228B22 100%);
+            position: relative;
+        }
+
+        .plot.planted::after {
+            content: "🌱";
+            position: absolute;
+            font-size: 3em;
+            animation: grow 2s infinite;
+        }
+
+        .plot.ready {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        }
+
+        .plot.ready::after {
+            content: "🌾";
+            position: absolute;
+            font-size: 3em;
+            animation: sway 2s infinite;
+        }
+
+        @keyframes grow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        .info-text {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            min-height: 20px;
+            margin-bottom: 20px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .stats-info {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌾 Farming Game 🌾</h1>
+
+        <div class="stats">
+            <div class="stat-box">
+                <h3>Money</h3>
+                <div class="value" id="money">$0</div>
+            </div>
+            <div class="stat-box">
+                <h3>Day</h3>
+                <div class="value" id="day">1</div>
+            </div>
+            <div class="stat-box">
+                <h3>Harvests</h3>
+                <div class="value" id="harvests">0</div>
+            </div>
+        </div>
+
+        <div class="info-text" id="info">Select a plot to plant a seed!</div>
+
+        <div class="farm" id="farm"></div>
+
+        <div class="buttons">
+            <button onclick="nextDay()">⏭️ Next Day</button>
+            <button onclick="resetGame()">🔄 Reset Game</button>
+        </div>
+
+        <div class="stats-info">
+            <p><strong>How to Play:</strong></p>
+            <p>🌱 Click on empty plots to plant seeds ($10)</p>
+            <p>💧 Click on planted seeds to water them</p>
+            <p>🌾 Click on ready crops to harvest and earn money!</p>
+            <p>⏭️ Click "Next Day" to advance time and grow your crops</p>
+        </div>
+    </div>
+
+    <script>
+        const PLOT_COUNT = 16;
+        const SEED_COST = 10;
+        const CROP_PRICE = 50;
+        const GROWTH_DAYS = 3;
+
+        let gameState = {
+            money: 100,
+            day: 1,
+            harvests: 0,
+            plots: Array(PLOT_COUNT).fill(null).map(() => ({
+                state: 'empty', // empty, planted, watered, ready
+                daysPlanted: 0
+            }))
+        };
+
+        function initFarm() {
+            const farmDiv = document.getElementById('farm');
+            farmDiv.innerHTML = '';
+            gameState.plots.forEach((plot, index) => {
+                const plotDiv = document.createElement('div');
+                plotDiv.className = `plot ${plot.state}`;
+                plotDiv.onclick = () => handlePlotClick(index);
+                farmDiv.appendChild(plotDiv);
+            });
+            updateStats();
+        }
+
+        function handlePlotClick(index) {
+            const plot = gameState.plots[index];
+
+            if (plot.state === 'empty') {
+                if (gameState.money >= SEED_COST) {
+                    plot.state = 'planted';
+                    plot.daysPlanted = 0;
+                    gameState.money -= SEED_COST;
+                    updateInfo('Seed planted! Water it and advance days to grow it.');
+                } else {
+                    updateInfo('Not enough money to plant! Need $10');
+                }
+            } else if (plot.state === 'planted') {
+                plot.state = 'watered';
+                updateInfo('Crop watered! Advance days to grow it.');
+            } else if (plot.state === 'watered') {
+                plot.state = 'watered';
+                updateInfo('Already watered! Advance to next day.');
+            } else if (plot.state === 'ready') {
+                plot.state = 'empty';
+                plot.daysPlanted = 0;
+                gameState.money += CROP_PRICE;
+                gameState.harvests++;
+                updateInfo('Harvested! You earned $' + CROP_PRICE);
+            }
+
+            initFarm();
+        }
+
+        function nextDay() {
+            gameState.day++;
+            gameState.plots.forEach(plot => {
+                if (plot.state === 'watered') {
+                    plot.daysPlanted++;
+                    if (plot.daysPlanted >= GROWTH_DAYS) {
+                        plot.state = 'ready';
+                    }
+                }
+            });
+            updateInfo('Day advanced! Crops are growing...');
+            initFarm();
+        }
+
+        function updateStats() {
+            document.getElementById('money').textContent = '$' + gameState.money;
+            document.getElementById('day').textContent = gameState.day;
+            document.getElementById('harvests').textContent = gameState.harvests;
+        }
+
+        function updateInfo(text) {
+            document.getElementById('info').textContent = text;
+        }
+
+        function resetGame() {
+            gameState = {
+                money: 100,
+                day: 1,
+                harvests: 0,
+                plots: Array(PLOT_COUNT).fill(null).map(() => ({
+                    state: 'empty',
+                    daysPlanted: 0
+                }))
+            };
+            updateInfo('Game reset! Start planting...');
+            initFarm();
+        }
+
+        // Initialize the game
+        initFarm();
+        updateInfo('Select a plot to plant a seed!');
+    </script>
+</body>
+</html>
