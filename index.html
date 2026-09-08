@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farming Game</title>
+    <title>Advanced Farming Game</title>
     <style>
         * {
             margin: 0;
@@ -12,61 +12,74 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
         }
 
-        .container {
+        .game-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
             background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 900px;
-            width: 100%;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
+            border-radius: 15px;
+            padding: 20px;
             margin-bottom: 20px;
-        }
-
-        .stats {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             display: flex;
-            justify-content: space-around;
-            margin-bottom: 30px;
-            gap: 15px;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
-        .stat-box {
-            background: #667eea;
-            color: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            text-align: center;
-            flex: 1;
-        }
-
-        .stat-box h3 {
-            font-size: 0.9em;
-            margin-bottom: 5px;
-        }
-
-        .stat-box .value {
-            font-size: 1.8em;
+        .title {
+            font-size: 2.5em;
+            color: #333;
             font-weight: bold;
         }
 
-        .farm {
+        .weather {
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .main-content {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .farm-area {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .farm-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
         .plot {
@@ -76,106 +89,298 @@
             border-radius: 10px;
             cursor: pointer;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             font-size: 2em;
-            transition: transform 0.2s;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
         }
 
         .plot:hover {
-            transform: scale(1.05);
+            transform: scale(1.08);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
 
         .plot.planted {
-            background: #90EE90;
+            background: linear-gradient(135deg, #90EE90 0%, #228B22 100%);
+            animation: grow 3s infinite;
         }
 
         .plot.ready {
-            background: #FFD700;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            animation: sway 2s infinite;
         }
 
-        .info-text {
-            text-align: center;
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 20px;
+        .plot.watered {
+            background: linear-gradient(135deg, #87CEEB 0%, #4682B4 100%);
         }
 
-        .buttons {
+        @keyframes grow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
+        }
+
+        .sidebar {
             display: flex;
-            gap: 10px;
-            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        button {
+        .panel {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .panel h3 {
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .shop-item {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .shop-item:hover {
             background: #667eea;
             color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1em;
+            transform: translateX(5px);
+        }
+
+        .shop-item-name {
             font-weight: bold;
         }
 
+        .shop-item-price {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 120px;
+        }
+
         button:hover {
-            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
         button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
+
+        .info-box {
+            background: #f0f8ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            min-height: 40px;
+        }
+
+        .animals {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .animal {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .animal:hover {
+            transform: scale(1.1);
+            background: #667eea;
+            color: white;
+        }
+
+        .achievement {
+            background: #fff9e6;
+            border: 2px solid #FFD700;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .day-counter {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .quest {
+            background: #e6f3ff;
+            border-left: 4px solid #667eea;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .title {
+                font-size: 2em;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Farming Game</h1>
-
-        <div class="stats">
-            <div class="stat-box">
-                <h3>Money</h3>
-                <div class="value" id="money">$100</div>
-            </div>
-            <div class="stat-box">
-                <h3>Day</h3>
-                <div class="value" id="day">1</div>
-            </div>
-            <div class="stat-box">
-                <h3>Harvests</h3>
-                <div class="value" id="harvests">0</div>
+    <div class="game-container">
+        <div class="header">
+            <div class="title">🌾 Advanced Farming Simulator 🌾</div>
+            <div class="weather" id="weather">☀️ Sunny</div>
+            <div class="stats-bar">
+                <div class="stat">💰 Money: <span id="money">$500</span></div>
+                <div class="stat">📅 Day: <span id="day" class="day-counter">1</span></div>
+                <div class="stat">📊 Level: <span id="level">1</span></div>
             </div>
         </div>
 
-        <div class="info-text" id="info">Click a plot to plant a seed ($10)</div>
+        <div class="main-content">
+            <div class="farm-area">
+                <h2>Your Farm</h2>
+                <div class="farm-grid" id="farm"></div>
+                <div class="button-group">
+                    <button onclick="waterAllCrops()">💧 Water All ($5)</button>
+                    <button onclick="fertilizeAllCrops()">🧪 Fertilize All ($10)</button>
+                    <button onclick="nextDay()">⏭️ Next Day</button>
+                </div>
+                <div class="info-box" id="info">Select a plot to plant or harvest!</div>
+            </div>
 
-        <div class="farm" id="farm"></div>
+            <div class="sidebar">
+                <div class="panel">
+                    <h3>🏪 Shop</h3>
+                    <div class="shop-item" onclick="buyItem('seed', 10)">
+                        <div class="shop-item-name">🌱 Seed</div>
+                        <div class="shop-item-price">$10</div>
+                    </div>
+                    <div class="shop-item" onclick="buyItem('premium_seed', 25)">
+                        <div class="shop-item-name">✨ Premium Seed</div>
+                        <div class="shop-item-price">$25</div>
+                    </div>
+                    <div class="shop-item" onclick="buyItem('fertilizer', 15)">
+                        <div class="shop-item-name">🧪 Fertilizer</div>
+                        <div class="shop-item-price">$15</div>
+                    </div>
+                </div>
 
-        <div class="buttons">
-            <button onclick="nextDay()">Next Day</button>
-            <button onclick="resetGame()">Reset</button>
+                <div class="panel">
+                    <h3>🐔 Animals</h3>
+                    <div class="animals">
+                        <div class="animal" onclick="buyAnimal('chicken', 50)">🐔 Chicken<br>$50</div>
+                        <div class="animal" onclick="buyAnimal('cow', 100)">🐄 Cow<br>$100</div>
+                    </div>
+                    <div id="animals-list" style="margin-top: 10px; font-size: 0.9em;"></div>
+                </div>
+
+                <div class="panel">
+                    <h3>⭐ Achievements</h3>
+                    <div id="achievements"></div>
+                </div>
+
+                <div class="panel">
+                    <h3>🎯 Daily Quest</h3>
+                    <div id="quest" class="quest">Harvest 3 crops</div>
+                </div>
+
+                <div class="button-group">
+                    <button onclick="resetGame()">🔄 Reset Game</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         const SEED_COST = 10;
+        const PREMIUM_SEED_COST = 25;
         const CROP_PRICE = 50;
+        const PREMIUM_CROP_PRICE = 100;
         const GROWTH_DAYS = 3;
+        const PREMIUM_GROWTH_DAYS = 2;
 
         let gameState = {
-            money: 100,
+            money: 500,
             day: 1,
+            level: 1,
             harvests: 0,
-            plots: []
+            plots: [],
+            animals: { chicken: 0, cow: 0 },
+            inventory: { seed: 0, premium_seed: 0, fertilizer: 0 },
+            weather: 'sunny',
+            achievements: [],
+            questProgress: 0
         };
 
-        function initPlots() {
-            for (let i = 0; i < 16; i++) {
+        const weatherCycle = ['sunny', 'rainy', 'cloudy'];
+
+        function initGame() {
+            for (let i = 0; i < 20; i++) {
                 gameState.plots.push({
                     state: 'empty',
-                    daysPlanted: 0
+                    daysPlanted: 0,
+                    type: 'normal',
+                    watered: false,
+                    fertilized: false
                 });
             }
+        }
+
+        function updateWeather() {
+            gameState.weather = weatherCycle[gameState.day % weatherCycle.length];
+            const weatherIcons = {
+                'sunny': '☀️ Sunny',
+                'rainy': '🌧️ Rainy',
+                'cloudy': '☁️ Cloudy'
+            };
+            document.getElementById('weather').textContent = weatherIcons[gameState.weather];
         }
 
         function render() {
@@ -187,73 +392,184 @@
                 plotDiv.className = 'plot ' + plot.state;
                 
                 if (plot.state === 'planted') {
-                    plotDiv.textContent = 'Growing...';
+                    plotDiv.textContent = plot.watered ? '💧' : '🌱';
                 } else if (plot.state === 'ready') {
-                    plotDiv.textContent = 'Ready!';
+                    plotDiv.textContent = plot.type === 'premium' ? '✨' : '🌾';
                 }
                 
-                plotDiv.onclick = function() { clickPlot(index); };
+                plotDiv.onclick = () => handlePlotClick(index);
+                plotDiv.title = `Plot ${index + 1}`;
                 farmDiv.appendChild(plotDiv);
             });
 
             document.getElementById('money').textContent = '$' + gameState.money;
             document.getElementById('day').textContent = gameState.day;
-            document.getElementById('harvests').textContent = gameState.harvests;
+            document.getElementById('level').textContent = Math.floor(gameState.harvests / 5) + 1;
+
+            updateAnimals();
+            updateAchievements();
         }
 
-        function clickPlot(index) {
+        function handlePlotClick(index) {
             const plot = gameState.plots[index];
 
             if (plot.state === 'empty') {
                 if (gameState.money >= SEED_COST) {
                     plot.state = 'planted';
+                    plot.type = 'normal';
                     plot.daysPlanted = 0;
+                    plot.watered = false;
                     gameState.money -= SEED_COST;
-                    document.getElementById('info').textContent = 'Seed planted! Water it.';
+                    setInfo('🌱 Seed planted! Water it to grow faster.');
                 } else {
-                    document.getElementById('info').textContent = 'Not enough money!';
+                    setInfo('❌ Not enough money! Need $10');
                 }
             } else if (plot.state === 'planted') {
-                plot.state = 'planted';
-                document.getElementById('info').textContent = 'Crop growing! Use Next Day button.';
+                if (!plot.watered) {
+                    plot.watered = true;
+                    setInfo('💧 Crop watered! It will grow faster now.');
+                } else {
+                    setInfo('Already watered. Wait for next day.');
+                }
             } else if (plot.state === 'ready') {
                 plot.state = 'empty';
                 plot.daysPlanted = 0;
-                gameState.money += CROP_PRICE;
+                plot.watered = false;
+                plot.fertilized = false;
+                const earnings = plot.type === 'premium' ? PREMIUM_CROP_PRICE : CROP_PRICE;
+                gameState.money += earnings;
                 gameState.harvests++;
-                document.getElementById('info').textContent = 'Harvested! Earned $50!';
+                gameState.questProgress++;
+                setInfo('🎉 Harvested! Earned $' + earnings);
             }
 
             render();
         }
 
+        function waterAllCrops() {
+            if (gameState.money < 5) {
+                setInfo('❌ Not enough money!');
+                return;
+            }
+            gameState.money -= 5;
+            gameState.plots.forEach(plot => {
+                if (plot.state === 'planted') plot.watered = true;
+            });
+            setInfo('💧 All crops watered!');
+            render();
+        }
+
+        function fertilizeAllCrops() {
+            if (gameState.money < 10) {
+                setInfo('❌ Not enough money!');
+                return;
+            }
+            gameState.money -= 10;
+            gameState.plots.forEach(plot => {
+                if (plot.state === 'planted') plot.fertilized = true;
+            });
+            setInfo('🧪 All crops fertilized! They will grow faster!');
+            render();
+        }
+
+        function buyItem(type, cost) {
+            if (gameState.money >= cost) {
+                gameState.money -= cost;
+                gameState.inventory[type]++;
+                setInfo('✅ Purchased! You now have ' + gameState.inventory[type] + ' ' + type);
+                render();
+            } else {
+                setInfo('❌ Not enough money!');
+            }
+        }
+
+        function buyAnimal(type, cost) {
+            if (gameState.money >= cost) {
+                gameState.money -= cost;
+                gameState.animals[type]++;
+                setInfo('✅ You bought a ' + type + '!');
+                render();
+            } else {
+                setInfo('❌ Not enough money!');
+            }
+        }
+
+        function updateAnimals() {
+            let html = '';
+            if (gameState.animals.chicken > 0) html += '🐔 x' + gameState.animals.chicken + ' (+$5/day)<br>';
+            if (gameState.animals.cow > 0) html += '🐄 x' + gameState.animals.cow + ' (+$10/day)<br>';
+            document.getElementById('animals-list').innerHTML = html || 'No animals yet';
+        }
+
+        function updateAchievements() {
+            let html = '';
+            if (gameState.harvests >= 1) html += '<div class="achievement">🌾 First Harvest!</div>';
+            if (gameState.harvests >= 10) html += '<div class="achievement">🏆 10 Harvests!</div>';
+            if (gameState.harvests >= 50) html += '<div class="achievement">👑 50 Harvests!</div>';
+            if (gameState.animals.chicken >= 5) html += '<div class="achievement">🐔 Farm Life!</div>';
+            document.getElementById('achievements').innerHTML = html || 'No achievements yet';
+        }
+
         function nextDay() {
             gameState.day++;
+            updateWeather();
+
             gameState.plots.forEach(plot => {
                 if (plot.state === 'planted') {
-                    plot.daysPlanted++;
-                    if (plot.daysPlanted >= GROWTH_DAYS) {
+                    let growthBoost = 0;
+                    if (plot.watered) growthBoost += 0.5;
+                    if (plot.fertilized) growthBoost += 0.5;
+                    if (gameState.weather === 'rainy') growthBoost += 0.3;
+
+                    plot.daysPlanted += (1 + growthBoost);
+                    const daysNeeded = plot.type === 'premium' ? PREMIUM_GROWTH_DAYS : GROWTH_DAYS;
+                    if (plot.daysPlanted >= daysNeeded) {
                         plot.state = 'ready';
                     }
+                    plot.watered = false;
                 }
             });
-            document.getElementById('info').textContent = 'Day ' + gameState.day + '! Crops growing...';
+
+            gameState.money += gameState.animals.chicken * 5;
+            gameState.money += gameState.animals.cow * 10;
+
+            if (gameState.questProgress >= 3) {
+                gameState.money += 50;
+                setInfo('🎯 Quest Complete! +$50 Bonus!');
+                gameState.questProgress = 0;
+            } else {
+                setInfo('📅 Day ' + gameState.day + ' started!');
+            }
+
             render();
+        }
+
+        function setInfo(text) {
+            document.getElementById('info').textContent = text;
         }
 
         function resetGame() {
-            gameState = {
-                money: 100,
-                day: 1,
-                harvests: 0,
-                plots: []
-            };
-            initPlots();
-            document.getElementById('info').textContent = 'Game reset!';
-            render();
+            if (confirm('Are you sure? This will reset everything!')) {
+                gameState = {
+                    money: 500,
+                    day: 1,
+                    level: 1,
+                    harvests: 0,
+                    plots: [],
+                    animals: { chicken: 0, cow: 0 },
+                    inventory: { seed: 0, premium_seed: 0, fertilizer: 0 },
+                    weather: 'sunny',
+                    achievements: [],
+                    questProgress: 0
+                };
+                initGame();
+                setInfo('🔄 Game reset! Start farming!');
+                render();
+            }
         }
 
-        initPlots();
+        initGame();
+        updateWeather();
         render();
     </script>
 </body>
